@@ -12,9 +12,10 @@ class Customer(models.Model):
     avg_order_value = models.FloatField(blank=True, null=True)
     holiday = models.BooleanField(default=False)
     season = models.CharField(max_length=20, blank=True, null=True)
+    llm_analysis = models.TextField(blank=True)
 
     def __str__(self):
-        return f"Customer {self.customer_id or 'Unknown'}"  # ✅ Ensure it never returns None
+        return f"Customer {self.customer_id or 'Unknown'}"
 
 class Product(models.Model):
     product_id = models.CharField(max_length=50, unique=True)
