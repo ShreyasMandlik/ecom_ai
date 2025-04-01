@@ -29,52 +29,39 @@ class CustomerAgent:
 
         ---
 
-        ### ** Response Format (STRICTLY FOLLOW)**
-        - Respond ONLY in the following JSON format:
-        ```json
-        {{
-            "Analysis": "<2-3 sentence summary explaining why this customer is in this segment and what category they are more likely to engage with>"
-        }}
+        ### **Response Format (STRICTLY FOLLOW)**
+        Respond **only** in this format:
         ```
-        - Do **NOT** return placeholder text.
-        - Do **NOT** repeat the prompt.
-        - Do **NOT** return explanations or markdown.
-
-        If you are unsure, respond with:
-        ```json
-        {{
-            "Analysis": "Unable to generate a meaningful response."
-        }}
+        "Analysis": "<2-3 sentence summary explaining why this customer is in this segment and what category they are more likely to engage with>"
+        ```
+        Do **not** return JSON, markdown, or any other structure.
+        If unsure, respond with:
+        ```
+        "Analysis": "Unable to generate a meaningful response."
         ```
         """
 
         for attempt in range(retries):
             try:
                 response = ollama.chat(model="tinyllama", messages=[{"role": "user", "content": prompt}])
-                raw_content = response['message']['content']
-                analysis = json.loads(raw_content)
-                if analysis["Analysis"].startswith("<") or "explaining why this customer is" in analysis["Analysis"]:
-                    print(f"⚠️ Attempt {attempt + 1} returned invalid response. Retrying...")
-                    time.sleep(2)
-                    continue
-                self.customer.llm_analysis = json.dumps(analysis)
-                self.customer.save()
-                return self.customer
+                raw_content = response['message']['content'].strip()
 
-            except (json.JSONDecodeError, KeyError):
                 match = re.search(r'"Analysis":\s*"([^"]+)"', raw_content)
-                extracted_text = match.group(1) if match else None
+                extracted_text = match.group(1) if match else raw_content
 
-                if extracted_text and not extracted_text.startswith("<"):
-                    analysis = {"Analysis": extracted_text}
-                    self.customer.llm_analysis = json.dumps(analysis)
+                if extracted_text and not extracted_text.startswith("<") and "explaining why this customer is" not in extracted_text:
+                    self.customer.llm_analysis = extracted_text
                     self.customer.save()
                     return self.customer
                 else:
                     print(f"⚠️ Attempt {attempt + 1} failed. Retrying...")
                     time.sleep(2)
 
-        self.customer.llm_analysis = json.dumps({"Analysis": "⚠️ AI failed to generate a valid response after multiple attempts."})
+            except Exception as e:
+                print(f"⚠️ Error on attempt {attempt + 1}: {e}. Retrying...")
+                time.sleep(2)
+
+        self.customer.llm_analysis = "⚠️ AI failed to generate a valid response after multiple attempts."
         self.customer.save()
         return self.customer
 
