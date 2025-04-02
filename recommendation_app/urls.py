@@ -19,5 +19,4 @@ from .views import *
 
 urlpatterns = [
     path('',home , name='home'),
-    path("customer/<str:customer_id>/", get_customer),
 ]

@@ -1,5 +1,10 @@
 from recommendation_app.models import Customer
 import ollama
+import re
+import time
+
+from recommendation_app.models import Customer
+import ollama
 import json
 import re
 import time
@@ -9,6 +14,7 @@ class CustomerAgent:
         self.customer = Customer.objects.get(customer_id=customer_id)
 
     def get_customer_analysis(self, retries=5):
+        """Dynamically generate customer behavior analysis using AI."""
         prompt = f"""
         You are an AI specializing in customer behavior analysis for an e-commerce platform.
         Analyze the given customer data and provide a **brief** explanation for why they belong to the **{self.customer.customer_segment}** category.
@@ -34,11 +40,6 @@ class CustomerAgent:
         ```
         "Analysis": "<2-3 sentence summary explaining why this customer is in this segment and what category they are more likely to engage with>"
         ```
-        Do **not** return JSON, markdown, or any other structure.
-        If unsure, respond with:
-        ```
-        "Analysis": "Unable to generate a meaningful response."
-        ```
         """
 
         for attempt in range(retries):
@@ -50,20 +51,17 @@ class CustomerAgent:
                 extracted_text = match.group(1) if match else raw_content
 
                 if extracted_text and not extracted_text.startswith("<") and "explaining why this customer is" not in extracted_text:
-                    self.customer.llm_analysis = extracted_text
-                    self.customer.save()
-                    return self.customer
-                else:
-                    print(f"⚠️ Attempt {attempt + 1} failed. Retrying...")
-                    time.sleep(2)
+                    print("Extracted text:", extracted_text)
+                    return extracted_text
+                print(f"⚠️ Attempt {attempt + 1} failed. Retrying...")
+                time.sleep(2)
 
             except Exception as e:
                 print(f"⚠️ Error on attempt {attempt + 1}: {e}. Retrying...")
                 time.sleep(2)
 
-        self.customer.llm_analysis = "⚠️ AI failed to generate a valid response after multiple attempts."
-        self.customer.save()
-        return self.customer
+        return "⚠️ AI failed to generate a valid response after multiple attempts."
+
 
 def run_customer_analysis(customer_id):
     agent = CustomerAgent(customer_id)
