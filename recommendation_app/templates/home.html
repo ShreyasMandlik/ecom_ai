@@ -9,16 +9,27 @@
 
 <body>
     <h1>Welcome to the Recommendation App</h1>
-    
-    {% if customers %}
-    <h2>Top 10 Customers:</h2>
+    {% if customer_analysis %}
+    <h2>Customer Analysis:</h2>
+    <p>{{ customer_analysis }}</p>
+    {% else %}
+    <p>No customer analysis available.</p>
+    {% endif %}
+
+    {% if filtered_products %}
+    <h2>Filtered Products:</h2>
     <ul>
-        {% for customer in customers %}
-        <li>{{ customer.customer_id }}</li>
+        {% for product in filtered_products %}
+        <li>
+            <strong>Product ID:</strong> {{ product.product_id }} <br>
+            <strong>Category:</strong> {{ product.category }} <br>
+            <strong>Price:</strong> ${{ product.price }} <br>
+            <strong>Brand:</strong> {{ product.brand }}
+        </li>
         {% endfor %}
     </ul>
     {% else %}
-    <p>No customers found.</p>
+    <p>No products available.</p>
     {% endif %}
 </body>
 

@@ -19,4 +19,5 @@ from .views import *
 
 urlpatterns = [
     path('',home , name='home'),
+    path('customer/<str:customer_id>/', get_list_products, name='get_list_products'),
 ]

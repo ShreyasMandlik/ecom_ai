@@ -2,13 +2,6 @@ from recommendation_app.models import Customer
 import ollama
 import re
 import time
-
-from recommendation_app.models import Customer
-import ollama
-import json
-import re
-import time
-
 class CustomerAgent:
     def __init__(self, customer_id):
         self.customer = Customer.objects.get(customer_id=customer_id)
@@ -38,7 +31,8 @@ class CustomerAgent:
         ### **Response Format (STRICTLY FOLLOW)**
         Respond **only** in this format:
         ```
-        "Analysis": "<2-3 sentence summary explaining why this customer is in this segment and what category they are more likely to engage with>"
+        "Categories Interested": "<comma-separated list of categories in which customers seems to be interested>",
+        "Analysis": "<2-3 only sentence summary explaining why this customer is in this segment and what category they are more likely to engage with>"
         ```
         """
 
@@ -51,7 +45,7 @@ class CustomerAgent:
                 extracted_text = match.group(1) if match else raw_content
 
                 if extracted_text and not extracted_text.startswith("<") and "explaining why this customer is" not in extracted_text:
-                    print("Extracted text:", extracted_text)
+                    # print("Extracted text:", extracted_text)
                     return extracted_text
                 print(f"⚠️ Attempt {attempt + 1} failed. Retrying...")
                 time.sleep(2)
