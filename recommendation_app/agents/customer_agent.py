@@ -6,6 +6,9 @@ class CustomerAgent:
     def __init__(self, customer_id):
         self.customer = Customer.objects.get(customer_id=customer_id)
 
+    def get_customer(self):
+        return self.customer
+
     def get_customer_analysis(self, retries=5):
         """Dynamically generate customer behavior analysis using AI."""
         prompt = f"""

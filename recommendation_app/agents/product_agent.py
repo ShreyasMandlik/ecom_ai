@@ -30,12 +30,10 @@ class ProductAgent:
 
     def get_filtered_products(self):
         customer_analysis = self.customer_analysis.lower()
-        print("🧠 Customer Analysis:", customer_analysis)
         unique_categories = self.extract_categories_from_analysis(customer_analysis)
-        print("🎯 Matched Categories:", unique_categories)
 
         products_df = pd.DataFrame(list(self.products.values()))
-        self.flattened_products = []  # ✅ clear old data before use
+        self.flattened_products = []
 
         for category in unique_categories:
             filtered_category_products = products_df[
@@ -45,6 +43,6 @@ class ProductAgent:
             self.flattened_products.extend(filtered_category_products.to_dict('records'))
 
         random.shuffle(self.flattened_products)
-
-        print(f"✅ Total flattened products (after shuffle): {len(self.flattened_products)}")
+        self.flattened_products.sort(key=lambda x: x['probability_of_recommendation'], reverse=True)
+        print(f"Total products: {len(self.flattened_products)}")
         return self.flattened_products

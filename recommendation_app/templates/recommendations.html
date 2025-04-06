@@ -27,6 +27,12 @@
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
         }
 
+        h2 {
+            color: #34495e;
+            border-bottom: 2px solid #e1e4e8;
+            padding-bottom: 5px;
+        }
+
         p {
             color: #555;
         }
@@ -61,41 +67,36 @@
 </head>
 
 <body>
-    <h1>Customer and their Customer Analysis</h1>
+    <h1>Welcome to the Recommendation App</h1>
+
     <section>
-        <h2>Customer Information</h2>
-        {% if customer %}
+        <h2>Recommended Products</h2>
+
+        {% if recommended_products %}
         <table>
-            <tr>
-                <th>Customer_ID</th>
-                <th>Age</th>
-                <th>Gender</th>
-                <th>Location</th>
-                <th>Browsing_History</th>
-                <th>Purchase_History</th>
-                <th>Customer_Segment</th>
-                <th>Avg_Order_Value</th>
-            </tr>
-            <tr>
-                <td>{{ customer.customer_id }}</td>
-                <td>{{ customer.age }}</td>
-                <td>{{ customer.gender }}</td>
-                <td>{{ customer.location }}</td>
-                <td>{{ customer.browsing_history }}</td>
-                <td>{{ customer.purchase_history }}</td>
-                <td>{{ customer.customer_segment }}</td>
-                <td>{{ customer.avg_order_value }}</td>
-            </tr>
+            <thead>
+                <tr>
+                    <th>Product ID</th>
+                    <th>Category</th>
+                    <th>Subcategory</th>
+                    <th>Price</th>
+                    <th>Brand</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for product in recommended_products %}
+                <tr>
+                    <td>{{ product.product_id }}</td>
+                    <td>{{ product.category }}</td>
+                    <td>{{ product.subcategory }}</td>
+                    <td>${{ product.price }}</td>
+                    <td>{{ product.brand }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
         </table>
         {% else %}
-        <p class="no-data">No customer data available.</p>
-        {% endif %}
-
-        <h2>Customer Analysis</h2>
-        {% if customer_analysis %}
-        <p>{{ customer_analysis }}</p>
-        {% else %}
-        <p class="no-data">No customer analysis available.</p>
+        <p class="no-data">No recommended products available.</p>
         {% endif %}
     </section>
 </body>

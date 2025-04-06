@@ -18,6 +18,6 @@ from django.urls import path
 from .views import *
 
 urlpatterns = [
-    path('',home , name='home'),
-    path('customer/<str:customer_id>/', get_list_products, name='get_list_products'),
+    path('customer/<str:customer_id>/',customer_home , name='home'),
+    path('recommendation/<str:customer_id>/', get_recommended_products, name='get_recommended_products'),
 ]

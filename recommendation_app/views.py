@@ -4,26 +4,24 @@ from .agents.customer_agent import *
 from .agents.product_agent import *
 from .agents.recommendation_agent import *
 
-def home(request):
-    customers = Customer.objects.all()
-    customers = customers[:10]
-    return render(request, 'home.html', {'customers': customers})
 
-def get_list_products(request, customer_id):
+def customer_home(request, customer_id):
+    customerAgent = CustomerAgent(customer_id)
+    customer = customerAgent.get_customer()
+    print('customer',customer.age)
     customer_analysis = run_customer_analysis(customer_id)
+    context = {
+        'customer': customer,
+        'customer_analysis': customer_analysis
+    }
+    return render(request, 'home.html', context)
 
-    product_agent = ProductAgent(customer_id)
-    filtered_products = product_agent.get_filtered_products()
-
+def get_recommended_products(request, customer_id):
+    print(f"[DEBUG] Fetching recommendations for Customer ID: {customer_id}")
     agent = RecommendationAgent(customer_id)
     recommendation_ids = agent.get_recommendations()
-
     recommended_products = Product.objects.filter(product_id__in=recommendation_ids)
-
     context = {
-        'customer_analysis': customer_analysis,
-        'filtered_products': filtered_products,
         'recommended_products': recommended_products,
     }
-
-    return render(request, 'home.html', context)
+    return render(request, 'recommendations.html', context)
