@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer List</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f6f9;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+        }
+
+        section {
+            background-color: #ffffff;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px auto;
+            max-width: 1000px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            color: #34495e;
+            border-bottom: 2px solid #e1e4e8;
+            padding-bottom: 5px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        th,
+        td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e1e4e8;
+        }
+
+        th {
+            background-color: #ecf0f1;
+            color: #2c3e50;
+        }
+
+        tr:hover {
+            background-color: #f0f8ff;
+        }
+
+        .no-data {
+            color: #999;
+            font-style: italic;
+        }
+
+        .pagination {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .pagination a,
+        .pagination span {
+            display: inline-block;
+            margin: 0 5px;
+            padding: 6px 12px;
+            border-radius: 4px;
+            text-decoration: none;
+            color: #2c3e50;
+            background-color: #ecf0f1;
+        }
+
+        .pagination .current {
+            background-color: #3498db;
+            color: white;
+        }
+
+        .search-bar {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .search-bar input[type="text"] {
+            padding: 8px;
+            width: 250px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        .search-bar button {
+            padding: 8px 12px;
+            margin-left: 6px;
+            border: none;
+            background-color: #3498db;
+            color: white;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .search-bar button:hover {
+            background-color: #2980b9;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Customer List</h1>
+
+    <section>
+        <h2>Customer Data</h2>
+
+        <div class="search-bar">
+            <form method="get">
+                <input type="text" name="search" value="{{ search_query }}" placeholder="Search by Customer ID">
+                <button type="submit">Search</button>
+            </form>
+        </div>
+
+        {% if page_obj.object_list %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Customer ID</th>
+                    <th>Age</th>
+                    <th>Location</th>
+                    <th> Recommendations </th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for customer in page_obj %}
+                <tr>
+                    <td>{{ customer.customer_id }}</td>
+                    <td>{{ customer.age }}</td>
+                    <td>{{ customer.location }}</td>
+                    <td> <a href="{% url 'customer_dashboard' customer.customer_id %}">View Recommendations</a> </td>
+
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p class="no-data">No customers found.</p>
+        {% endif %}
+
+        <div class="pagination">
+            {% if page_obj.has_previous %}
+            <a
+                href="?{% if search_query %}search={{ search_query }}&{% endif %}page={{ page_obj.previous_page_number }}">Previous</a>
+            {% endif %}
+
+            <span class="current">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+
+            {% if page_obj.has_next %}
+            <a
+                href="?{% if search_query %}search={{ search_query }}&{% endif %}page={{ page_obj.next_page_number }}">Next</a>
+            {% endif %}
+        </div>
+    </section>
+</body>
+
+</html>

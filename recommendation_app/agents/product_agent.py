@@ -5,7 +5,6 @@ import re
 import random
 import datetime
 
-
 class ProductAgent:
     def __init__(self, customer_id):
         self.customer = Customer.objects.get(customer_id=customer_id)
@@ -43,7 +42,6 @@ class ProductAgent:
         product_price = product.get("price", 0.0)
         customer_avg_order = self.customer.avg_order_value or 0.0
 
-        # Determine current season
         month = datetime.datetime.now().month
         if month in [3, 4, 5]:
             current_season = "spring"
@@ -82,7 +80,7 @@ class ProductAgent:
             filtered_category_products = products_df[
                 products_df['category'].str.lower() == category.lower()
             ]
-            print(f"📂 {category}: {len(filtered_category_products)} products")
+            print(f"{category}: {len(filtered_category_products)} products")
             self.flattened_products.extend(filtered_category_products.to_dict('records'))
 
         print(f"Total filtered products: {len(self.flattened_products)}")

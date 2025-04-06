@@ -18,6 +18,7 @@ from django.urls import path
 from .views import *
 
 urlpatterns = [
+    path('', index, name='index'),
     path('customer/<str:customer_id>/', customer_dashboard, name='customer_dashboard'),
     path('api/customer_analysis/<str:customer_id>/', api_customer_analysis, name='api_customer_analysis'),
     path('api/recommendations/<str:customer_id>/', api_recommended_products, name='api_recommendations'),

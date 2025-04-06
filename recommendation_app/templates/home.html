@@ -1,133 +1,155 @@
-    <!DOCTYPE html>
-    <html lang="en">
+<!DOCTYPE html>
+<html lang="en">
 
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Customer Dashboard</title>
-        <style>
-            body {
-                font-family: Arial, sans-serif;
-                background-color: #f4f6f9;
-                margin: 0;
-                padding: 20px;
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f6f9;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+        }
+
+        section {
+            background-color: #ffffff;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px auto;
+            max-width: 1000px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            color: #34495e;
+            border-bottom: 2px solid #e1e4e8;
+            padding-bottom: 5px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        th,
+        td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e1e4e8;
+        }
+
+        th {
+            background-color: #ecf0f1;
+            color: #2c3e50;
+        }
+
+        tr:hover {
+            background-color: #f0f8ff;
+        }
+
+        .no-data {
+            color: #999;
+            font-style: italic;
+        }
+
+        .loading {
+            color: #aaa;
+            font-style: italic;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 10px auto;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
             }
+        }
+    </style>
+</head>
 
-            h1 {
-                text-align: center;
-                color: #2c3e50;
-            }
+<body>
+    <h1>Customer Dashboard</h1>
+    <section>
+        <h2>Customer Information</h2>
+        {% if customer %}
+        <table>
+            <tr>
+                <th>Customer ID</th>
+                <th>Age</th>
+                <th>Gender</th>
+                <th>Location</th>
+                <th>Browsing History</th>
+                <th>Purchase History</th>
+                <th>Customer Segment</th>
+                <th>Avg Order Value</th>
+            </tr>
+            <tr>
+                <td>{{ customer.customer_id }}</td>
+                <td>{{ customer.age }}</td>
+                <td>{{ customer.gender }}</td>
+                <td>{{ customer.location }}</td>
+                <td>{{ customer.browsing_history }}</td>
+                <td>{{ customer.purchase_history }}</td>
+                <td>{{ customer.customer_segment }}</td>
+                <td>{{ customer.avg_order_value }}</td>
+            </tr>
+        </table>
+        {% else %}
+        <p class="no-data">No customer data available.</p>
+        {% endif %}
+    </section>
+    <section>
+        <h2>Customer Analysis</h2>
+        <div id="analysis">
+            <div class="spinner"></div>
+        </div>
+    </section>
 
-            section {
-                background-color: #ffffff;
-                border-radius: 10px;
-                padding: 20px;
-                margin: 20px auto;
-                max-width: 1000px;
-                box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-            }
+    <section>
+        <h2>Recommended Products</h2>
+        <div id="recommendations">
+            <p class="no-data">This takes around 2 mins to show llm output.</p>
+            <div class="spinner"></div>
+        </div>
+    </section>
 
-            h2 {
-                color: #34495e;
-                border-bottom: 2px solid #e1e4e8;
-                padding-bottom: 5px;
-            }
+    <script>
+        const customerId = "{{ customer.customer_id }}";
+        fetch(`/api/customer_analysis/${customerId}/`)
+            .then(res => res.json())
+            .then(data => {
+                document.getElementById("analysis").innerText = data.analysis || "No analysis available.";
+            })
+            .catch(() => {
+                document.getElementById("analysis").innerText = "Failed to load analysis.";
+            });
 
-            table {
-                width: 100%;
-                border-collapse: collapse;
-                margin-top: 15px;
-            }
+        fetch(`/api/recommendations/${customerId}/`)
+            .then(res => res.json())
+            .then(data => {
+                const div = document.getElementById("recommendations");
+                if (data.products.length === 0) {
+                    div.innerHTML = "<p class='no-data'>No recommended products available.</p>";
+                    return;
+                }
 
-            th,
-            td {
-                padding: 12px;
-                text-align: left;
-                border-bottom: 1px solid #e1e4e8;
-            }
-
-            th {
-                background-color: #ecf0f1;
-                color: #2c3e50;
-            }
-
-            tr:hover {
-                background-color: #f0f8ff;
-            }
-
-            .no-data {
-                color: #999;
-                font-style: italic;
-            }
-
-            .loading {
-                color: #aaa;
-                font-style: italic;
-            }
-        </style>
-    </head>
-
-    <body>
-        <h1>Customer Dashboard</h1>
-        <section>
-            <h2>Customer Information</h2>
-            {% if customer %}
-            <table>
-                <tr>
-                    <th>Customer ID</th>
-                    <th>Age</th>
-                    <th>Gender</th>
-                    <th>Location</th>
-                    <th>Browsing History</th>
-                    <th>Purchase History</th>
-                    <th>Customer Segment</th>
-                    <th>Avg Order Value</th>
-                </tr>
-                <tr>
-                    <td>{{ customer.customer_id }}</td>
-                    <td>{{ customer.age }}</td>
-                    <td>{{ customer.gender }}</td>
-                    <td>{{ customer.location }}</td>
-                    <td>{{ customer.browsing_history }}</td>
-                    <td>{{ customer.purchase_history }}</td>
-                    <td>{{ customer.customer_segment }}</td>
-                    <td>{{ customer.avg_order_value }}</td>
-                </tr>
-            </table>
-            {% else %}
-            <p class="no-data">No customer data available.</p>
-            {% endif %}
-        </section>
-        <section>
-            <h2>Customer Analysis</h2>
-            <div id="analysis" class="loading">Loading analysis...</div>
-        </section>
-        <section>
-            <h2>Recommended Products</h2>
-            <div id="recommendations" class="loading">Loading recommendations...</div>
-        </section>
-
-        <script>
-            const customerId = "{{ customer.customer_id }}";
-            fetch(`/api/customer_analysis/${customerId}/`)
-                .then(res => res.json())
-                .then(data => {
-                    document.getElementById("analysis").innerText = data.analysis || "No analysis available.";
-                })
-                .catch(() => {
-                    document.getElementById("analysis").innerText = "Failed to load analysis.";
-                });
-
-            fetch(`/api/recommendations/${customerId}/`)
-                .then(res => res.json())
-                .then(data => {
-                    const div = document.getElementById("recommendations");
-                    if (data.products.length === 0) {
-                        div.innerHTML = "<p class='no-data'>No recommended products available.</p>";
-                        return;
-                    }
-
-                    let html = `<table>
+                let html = `<table>
                                     <tr>
                                         <th>Product ID</th>
                                         <th>Category</th>
@@ -136,23 +158,23 @@
                                         <th>Brand</th>
                                     </tr>`;
 
-                    data.products.forEach(p => {
-                        html += `<tr>
+                data.products.forEach(p => {
+                    html += `<tr>
                                     <td>${p.product_id}</td>
                                     <td>${p.category}</td>
                                     <td>${p.subcategory}</td>
-                                    <td>$${p.price}</td>
+                                    <td>${p.price}</td>
                                     <td>${p.brand}</td>
                                 </tr>`;
-                    });
-
-                    html += "</table>";
-                    div.innerHTML = html;
-                })
-                .catch(() => {
-                    document.getElementById("recommendations").innerText = "Failed to load recommendations.";
                 });
-        </script>
-    </body>
 
-    </html>
+                html += "</table>";
+                div.innerHTML = html;
+            })
+            .catch(() => {
+                document.getElementById("recommendations").innerText = "Failed to load recommendations.";
+            });
+    </script>
+</body>
+
+</html>
