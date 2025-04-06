@@ -1,27 +1,24 @@
-from django.shortcuts import render, HttpResponse
-from .models import Customer
-from .agents.customer_agent import *
-from .agents.product_agent import *
-from .agents.recommendation_agent import *
+from django.shortcuts import render
+from django.http import JsonResponse
+from .models import Product
+from .agents.customer_agent import CustomerAgent, run_customer_analysis
+from .agents.recommendation_agent import RecommendationAgent
+from django.forms.models import model_to_dict
 
 
-def customer_home(request, customer_id):
-    customerAgent = CustomerAgent(customer_id)
-    customer = customerAgent.get_customer()
-    print('customer',customer.age)
+def customer_dashboard(request, customer_id):
+    agent = CustomerAgent(customer_id)
+    customer = agent.get_customer()
+    return render(request, 'home.html', {'customer': customer})
+
+def api_customer_analysis(request,customer_id):
     customer_analysis = run_customer_analysis(customer_id)
-    context = {
-        'customer': customer,
-        'customer_analysis': customer_analysis
-    }
-    return render(request, 'home.html', context)
+    return JsonResponse({'analysis': customer_analysis})
 
-def get_recommended_products(request, customer_id):
-    print(f"[DEBUG] Fetching recommendations for Customer ID: {customer_id}")
+def api_recommended_products(request, customer_id):
     agent = RecommendationAgent(customer_id)
     recommendation_ids = agent.get_recommendations()
-    recommended_products = Product.objects.filter(product_id__in=recommendation_ids)
-    context = {
-        'recommended_products': recommended_products,
-    }
-    return render(request, 'recommendations.html', context)
+    products = Product.objects.filter(product_id__in=recommendation_ids)
+    product_list = [model_to_dict(product) for product in products]
+
+    return JsonResponse({'products': product_list})
