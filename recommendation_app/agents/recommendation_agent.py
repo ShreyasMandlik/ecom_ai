@@ -1,6 +1,5 @@
 import ollama
 import time
-from datetime import datetime
 from .product_agent import ProductAgent
 from ..models import Customer
 
@@ -13,21 +12,12 @@ class RecommendationAgent:
         self.customer_analysis = self.product_agent.customer_analysis
         self.batch_size = batch_size
 
-    def _get_current_season(self):
-        month = datetime.now().month
-        return (
-            "Spring" if 3 <= month <= 5 else
-            "Summer" if 6 <= month <= 8 else
-            "Autumn" if 9 <= month <= 11 else
-            "Winter"
-        )
-
     def _chunk_products(self):
         print(f"📦 Total products: {len(self.filtered_products)}")
         for i in range(0, len(self.filtered_products), self.batch_size):
             yield self.filtered_products[i:i + self.batch_size]
 
-    def _ask_llm_for_batch(self, product_batch, batch_num, batch_recs=5, retries=3):
+    def _ask_llm_for_batch(self, product_batch, batch_num, retries=3):
         product_list_text = "\n".join(
             f"- Product ID: {p['product_id']}, "
             f"Category: {p['category']}/{p['subcategory']}, "
@@ -45,7 +35,7 @@ class RecommendationAgent:
         prompt = f"""
         You are a smart product recommendation assistant.
 
-        This is batch #{batch_num} of relevant products. Pick the top {batch_recs} that best match the customer below based on:
+        This is batch #{batch_num} of relevant products. Pick the top 3 that best match the customer below based on:
         - If there are more than one category then please keep the recommendation for that category also this is mandatory.
         - Purchase and browsing history
         - Current season
@@ -62,7 +52,6 @@ class RecommendationAgent:
         - Avg Order Value: {self.customer.avg_order_value}
         - Holiday Shopper: {'Yes' if self.customer.holiday else 'No'}
         - Favorite Season: {self.customer.season}
-        - Current Season: {self._get_current_season()}
 
         ### Customer Insights
         {self.customer_analysis}
@@ -100,7 +89,7 @@ class RecommendationAgent:
         all_recommendations = []
 
         for batch_num, product_batch in enumerate(self._chunk_products(), start=1):
-            if batch_num > 3:
+            if batch_num > 5:
                 break
             print(f"📦 Processing batch #{batch_num} with {len(product_batch)} products...")
             result = self._ask_llm_for_batch(product_batch, batch_num)
