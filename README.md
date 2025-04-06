@@ -17,12 +17,6 @@ This project implements a multi-agent, AI-driven recommendation engine designed 
 - **Personalized Recommendation**  
   Uses deep context reasoning to recommend top products that match the customer's needs.
 
-- **Cost Optimization**  
-  Caches AI-generated insights to reduce repeated LLM calls and save computation cost.
-
-- **Adaptability**  
-  Feedback loop allows real-time updates to customer data as preferences change.
-
 ---
 
 ## 🧠 Agents' Interaction Design
@@ -61,6 +55,7 @@ This project implements a multi-agent, AI-driven recommendation engine designed 
 - Real-time integration with user interaction data.
 - Dashboard for visualizing agent performance and product trends.
 - A/B testing to evaluate recommendation quality.
+- Caches AI-generated insights to reduce repeated LLM calls and save computation cost.
 
 ---
 ## Demo 
